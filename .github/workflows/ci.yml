@@ -1,0 +1,27 @@
+name: analytics-ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.17'
+      - run: uv sync --frozen --python ${{ matrix.python-version }} --extra dev
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run python -m compileall -q src scripts app
+      - run: uv run pytest -q
+        env:
+          SCDI_DATABASE: data/demo/decision_intelligence.sqlite
+      - name: Reproduce demo analysis from real records
+        run: uv run python scripts/verify_demo.py
