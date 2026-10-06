@@ -4,10 +4,17 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from scdi.data import validate_daily
+from scdi.data import validate_daily, verify_source_file
 from scdi.database import write_database
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_manual_download_cannot_bypass_pinned_source_hash(tmp_path):
+    source = tmp_path / "train.parquet"
+    source.write_bytes(b"substituted or corrupted source")
+    with pytest.raises(ValueError, match="SHA-256 mismatch"):
+        verify_source_file(source)
 
 
 def daily_fixture():

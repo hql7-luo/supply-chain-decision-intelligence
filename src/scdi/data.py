@@ -2,11 +2,30 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
+
+SOURCE_SHA256 = {
+    "train.parquet": "6706832db892bbae4969c19d87e07975d2543d2ba7d7d4756360654785de5a3d",
+    "eval.parquet": "1b118840664280c6b88bffc84c80ee1f54c05d911e354b7599e5da10995e960e",
+}
+
+
+def verify_source_file(path: Path) -> None:
+    """Enforce pinned provenance for automated and manual downloads alike."""
+    if path.name not in SOURCE_SHA256:
+        raise ValueError(f"Unexpected source filename: {path.name}")
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    if digest.hexdigest() != SOURCE_SHA256[path.name]:
+        raise ValueError(f"SHA-256 mismatch for {path.name}; obtain the documented pinned source")
+
 
 SOURCE_COLUMNS = [
     "city_id",
@@ -90,6 +109,7 @@ def validate_daily(daily: pd.DataFrame) -> None:
 def load_and_audit(raw: Path) -> tuple[pd.DataFrame, dict]:
     profiles, frames = [], []
     for name, expected_rows in [("train.parquet", 4_500_000), ("eval.parquet", 350_000)]:
+        verify_source_file(raw / name)
         file = pq.ParquetFile(raw / name)
         if file.schema_arrow.names != SOURCE_COLUMNS:
             raise ValueError(f"Source schema drift in {name}")
