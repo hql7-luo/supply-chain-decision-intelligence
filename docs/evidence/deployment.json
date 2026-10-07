@@ -1,0 +1,24 @@
+{
+  "status": "verified_public",
+  "url": "https://hql7-luo.github.io/demos/supply-chain/",
+  "platform": "GitHub Pages",
+  "application": "static Plotly real-data explorer",
+  "scope": "200-series real-data subset, not representative of the full dataset",
+  "series": 200,
+  "rows": 19400,
+  "historical_days": 97,
+  "source_revision": "08c1fab7f9257bc73679d415d65d644165d351d4",
+  "data_sha256": "6c40464e927bb345c642bf4d7bbb6af4b158872b7ce1b2787d21a881ca06dca7",
+  "initial_deployment_commit": "76c6814e2bba5f7b5a2abd88cc8299bdb80a6fff",
+  "verified_at_utc": "2026-10-07T06:24:04.747011+00:00",
+  "verified_checks": [
+    "Unauthenticated public browser access",
+    "Desktop and Chinese mobile charts",
+    "Top 20 and Top 50 queues",
+    "Status filters and sales sorting",
+    "Series selection and forecast linkage",
+    "Actual CSV download",
+    "No JavaScript errors or page overflow"
+  ],
+  "streamlit_community_cloud": "Not deployed; complete six-tab Streamlit remains available locally"
+}

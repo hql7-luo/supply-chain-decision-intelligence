@@ -1,0 +1,245 @@
+{
+  "scope": "full dataset; all 50,000 store-product series; not the 200-series demo",
+  "source": {
+    "dataset": "FreshRetailNet-50K",
+    "license": "CC BY 4.0",
+    "url": "https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K",
+    "revision": "08c1fab7f9257bc73679d415d65d644165d351d4"
+  },
+  "units": "globally normalized observed sales; not physical units, revenue, or recovered demand",
+  "build_command": "uv run --extra viz python scripts/build_visualizations.py",
+  "findings_sha256": "de52e9eeea122e4b646956c52ee650e9e64873be040da28a744715d6aad8132d",
+  "metrics": {
+    "data": {
+      "rows": 4850000,
+      "series": 50000,
+      "products": 865,
+      "date_min": "2024-03-28",
+      "date_max": "2024-07-02",
+      "stockout_days": 2135444,
+      "stockout_hour_rate": 0.1974944201030928,
+      "zero_sales_days": 215323,
+      "zero_sales_with_stockout": 164587,
+      "normalized_sales_total": 4911229.3100000005
+    },
+    "concentration": {
+      "products_for_80pct_observed_sales": 122,
+      "product_share_for_80pct": 0.14104046242774568,
+      "cumulative_share_at_crossing": 0.8013671493583752
+    },
+    "risk": {
+      "counts": {
+        "High Risk": 30269,
+        "Critical": 10322,
+        "Watch": 8633,
+        "Healthy": 776
+      },
+      "high_priority_series": 40591,
+      "high_priority_recent_sales_share": 0.7578843117709932,
+      "window_start": "2024-06-05",
+      "window_end": "2024-07-02",
+      "recent_normalized_sales_total": 1572584.5019999999
+    },
+    "forecast": {
+      "naive": {
+        "mae": 0.5116443257142858,
+        "rmse": 0.8596465193787503,
+        "wape": 0.42885300049304714,
+        "bias": -0.01976950259730185,
+        "n_observations": 350000,
+        "actual_sum": 417568.52300000004
+      },
+      "seasonal_naive7": {
+        "mae": 0.49907080571428575,
+        "rmse": 0.835818696249372,
+        "wape": 0.4183140547689223,
+        "bias": 0.0027725557273386723,
+        "n_observations": 350000,
+        "actual_sum": 417568.52300000004
+      },
+      "mean28": {
+        "mae": 0.4644614656122449,
+        "rmse": 0.8119931127773385,
+        "wape": 0.38930499788722267,
+        "bias": -0.09114936628017814,
+        "n_observations": 350000,
+        "actual_sum": 417568.52300000004
+      },
+      "ses_alpha0.3": {
+        "mae": 0.4295273518351749,
+        "rmse": 0.7196106904337648,
+        "wape": 0.3600237203279597,
+        "bias": -0.0048655637502757676,
+        "n_observations": 350000,
+        "actual_sum": 417568.52300000004
+      },
+      "per_series_selector": {
+        "mae": 0.4464128756028693,
+        "rmse": 0.7601126253686903,
+        "wape": 0.374176926312533,
+        "bias": -0.03030480516801656,
+        "n_observations": 350000,
+        "actual_sum": 417568.52300000004
+      }
+    },
+    "zero_sales": {
+      "zero_sales_with_stockout_share": 0.7643725937312781,
+      "bands": [
+        {
+          "stockout_hours_band": "0",
+          "observed_days": 2714556,
+          "zero_sales_days": 50736,
+          "zero_sales_rate": 0.018690349361000475
+        },
+        {
+          "stockout_hours_band": "1–4",
+          "observed_days": 661154,
+          "zero_sales_days": 1959,
+          "zero_sales_rate": 0.00296300105572983
+        },
+        {
+          "stockout_hours_band": "5–8",
+          "observed_days": 748956,
+          "zero_sales_days": 1009,
+          "zero_sales_rate": 0.0013472086477710305
+        },
+        {
+          "stockout_hours_band": "9–12",
+          "observed_days": 431323,
+          "zero_sales_days": 1455,
+          "zero_sales_rate": 0.0033733420197856363
+        },
+        {
+          "stockout_hours_band": "13–15",
+          "observed_days": 99679,
+          "zero_sales_days": 1769,
+          "zero_sales_rate": 0.017746967766530564
+        },
+        {
+          "stockout_hours_band": "16",
+          "observed_days": 194332,
+          "zero_sales_days": 158395,
+          "zero_sales_rate": 0.815074202910483
+        }
+      ]
+    }
+  },
+  "charts": {
+    "historical-demand-stockouts": {
+      "files": {
+        "png": {
+          "filename": "historical-demand-stockouts.png",
+          "sha256": "2a7f4124e439bd7d3796210c34a30033ed81fd77ebd90b7abe50dce1374bf647",
+          "bytes": 221484
+        },
+        "svg": {
+          "filename": "historical-demand-stockouts.svg",
+          "sha256": "5c628be65fa5f740c5bc03f92588438c19281fe17dd4d873ae98545f1c806e48",
+          "bytes": 28126
+        }
+      },
+      "data_rows": 97,
+      "period": "2024-03-28–2024-07-02",
+      "data_sha256": "026af9c7daec0b2270d87ff6206710346d9e1205b7d7a9a5b87caaa5d80e58c6",
+      "png_dimensions": [
+        1800,
+        1260
+      ]
+    },
+    "product-pareto": {
+      "files": {
+        "png": {
+          "filename": "product-pareto.png",
+          "sha256": "63f3efeee15130eb11037057dcf64086f38b674ac1c74ea2bb1e3509f92cc3b5",
+          "bytes": 197138
+        },
+        "svg": {
+          "filename": "product-pareto.svg",
+          "sha256": "6d4bb9e918d8cbf8aaf041c124b40ffc2e984b4900d74b9947af7c6c84de3ccd",
+          "bytes": 188774
+        }
+      },
+      "data_rows": 865,
+      "period": "2024-03-28–2024-07-02",
+      "data_sha256": "a3a93458ac4638c3a61b019a0445a1f82407ec10d617a00fe3e2546f73615943",
+      "png_dimensions": [
+        1800,
+        1260
+      ]
+    },
+    "forecast-comparison": {
+      "files": {
+        "png": {
+          "filename": "forecast-comparison.png",
+          "sha256": "6740435906f1313c57675f5a4cdaf1e4100d5add9585bf9dd428589cf374a03b",
+          "bytes": 156321
+        },
+        "svg": {
+          "filename": "forecast-comparison.svg",
+          "sha256": "e65ca02d7471713f1c177c42f53317ba3efe5bf2db3f2082e96c637256cde8ab",
+          "bytes": 11940
+        }
+      },
+      "data_rows": 5,
+      "period": "2024-06-26–2024-07-02",
+      "data_sha256": "3fa647fe8c3ddb14a1f359d6d77c34c305050649046b981c4440d5658c540407",
+      "png_dimensions": [
+        1800,
+        1260
+      ]
+    },
+    "stockout-risk-matrix": {
+      "files": {
+        "png": {
+          "filename": "stockout-risk-matrix.png",
+          "sha256": "9af3bc950aea3fabff1ada4cee5261238e7fad2597a5a29ff46e32a59db3f86b",
+          "bytes": 560093
+        },
+        "svg": {
+          "filename": "stockout-risk-matrix.svg",
+          "sha256": "b68735e01822fa0710de05eadbfd0995315c5ec20c884c875071120f8dc269ba",
+          "bytes": 397235
+        }
+      },
+      "data_rows": 50000,
+      "period": "2024-06-05–2024-07-02",
+      "sampled": false,
+      "highlight": "Existing priority ranks 1–20; risk definitions unchanged",
+      "data_sha256": "2caba3591857ef8fd9b8c36e7fafcdcef397b196cdea5ae222b4e0decaf1b82f",
+      "png_dimensions": [
+        1800,
+        1260
+      ]
+    },
+    "availability-zero-sales": {
+      "files": {
+        "png": {
+          "filename": "availability-zero-sales.png",
+          "sha256": "fd5564f5c746110bd4595bcd47619600d3fc90aa53f4d8c36add950839c7127a",
+          "bytes": 166120
+        },
+        "svg": {
+          "filename": "availability-zero-sales.svg",
+          "sha256": "62c41e260acea141739605e1d4e0ea58b19141355e23fd22df735e7d767365dc",
+          "bytes": 15095
+        }
+      },
+      "data_rows": 6,
+      "period": "2024-03-28–2024-07-02",
+      "data_sha256": "aca35d21582ec087231927399b5df48674aa3ba6400240a8ad5d1b09679d3114",
+      "png_dimensions": [
+        1800,
+        1260
+      ]
+    }
+  },
+  "verification": {
+    "all_full_data_metrics_reconcile_with_saved_findings": true,
+    "fixed_baseline_wape_recomputed_from_90_day_source_histories": true,
+    "selector_wape_recomputed_from_actual_and_prediction_rows": true,
+    "all_97_dates_all_865_products_all_50000_series_included": true,
+    "risk_definitions_unchanged": true,
+    "risk_axes_and_classes_recomputed_from_daily_facts": true,
+    "existing_priority_ranks_reconciled": true
+  }
+}

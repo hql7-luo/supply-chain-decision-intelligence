@@ -160,3 +160,88 @@ def test_dashboard_explains_incompatible_zero_scenario_inputs(fixture_database, 
     assert not app.exception
     assert any("zero sales baseline" in warning.value for warning in app.warning)
     assert not any(metric.label == "Illustrative reorder point" for metric in app.metric)
+
+
+def test_management_workload_preserves_risk_and_original_rank():
+    source = pd.DataFrame(
+        {
+            "series_id": ["a", "b", "c", "d"],
+            "availability_risk": ["Critical", "High Risk", "Healthy", "Critical"],
+            "priority_rank": [1, 2, 3, 4],
+            "observed_sales_total": [5.0, 20.0, 100.0, 20.0],
+            "stockout_hour_rate": [0.6, 0.15, 0.0, 0.5],
+        }
+    )
+    original = source.copy(deep=True)
+    queue = dashboard.management_queue(
+        source, ["Critical", "High Risk"], "Highest observed sales", 2
+    )
+    assert queue["series_id"].tolist() == ["b", "d"]
+    assert queue["priority_rank"].tolist() == [2, 4]
+    assert queue["availability_risk"].tolist() == ["High Risk", "Critical"]
+    assert dashboard.management_queue(source, [], "Original management priority", 20).empty
+    pd.testing.assert_frame_equal(source, original)
+
+
+def test_forecast_view_exports_observed_error_and_unscored_future():
+    history = pd.DataFrame(
+        {"date": ["2024-01-01", "2024-01-02"], "sales": [1.0, 3.0], "stockout_hours": [0, 4]}
+    )
+    predictions = pd.DataFrame(
+        {
+            "date": ["2024-01-02", "2024-01-03"],
+            "prediction": [2.0, 2.5],
+            "selected_model": ["naive"] * 2,
+            "split": ["holdout", "future"],
+        }
+    )
+    figure, exported = dashboard.forecast_figure(history, predictions, False)
+    assert exported.loc[exported["split"] == "holdout", "prediction_error"].iloc[0] == -1
+    assert exported.loc[exported["split"] == "future", "sales"].isna().all()
+    assert exported.loc[exported["split"] == "future", "prediction_error"].isna().all()
+    assert list(figure.data[-1].y) == [0, 4]
+    html = dashboard.chart_html(figure).decode()
+    assert "Holdout prediction" in html
+    assert "Stockout hours" in html
+    assert 'src="https://cdn.plot.ly' not in html
+
+
+def test_dashboard_top_20_top_50_and_status_filters(fixture_database, monkeypatch):
+    with sqlite3.connect(fixture_database) as connection:
+        summaries = pd.read_sql_query("SELECT * FROM series_summary", connection)
+        daily = pd.read_sql_query("SELECT * FROM daily_sales", connection)
+        forecasts = pd.read_sql_query("SELECT * FROM forecast_values", connection)
+        scores = pd.read_sql_query("SELECT * FROM forecast_scores", connection)
+        for position in range(2, 61):
+            series_id = f"1_{position}"
+            item = summaries.copy()
+            item["series_id"] = series_id
+            item["product_id"] = position
+            item["priority_rank"] = position
+            item["availability_risk"] = "High Risk" if position <= 50 else "Healthy"
+            item["stockout_hour_rate"] = 0.125 if position <= 50 else 0.0
+            item.to_sql("series_summary", connection, index=False, if_exists="append")
+            for frame, table in [
+                (daily, "daily_sales"),
+                (forecasts, "forecast_values"),
+                (scores, "forecast_scores"),
+            ]:
+                records = frame.copy()
+                records["series_id"] = series_id
+                records.to_sql(table, connection, index=False, if_exists="append")
+    monkeypatch.setenv("SCDI_DATABASE", str(fixture_database))
+    app = AppTest.from_file(str(APP)).run(timeout=30)
+    assert not app.exception
+    assert len(app.dataframe[0].value) == 20
+    app.selectbox(key="capacity_overview").set_value("Top 50").run(timeout=30)
+    assert not app.exception
+    assert len(app.dataframe[0].value) == 50
+    app.multiselect(key="statuses_overview").set_value(["Healthy"]).run(timeout=30)
+    assert not app.exception
+    assert len(app.dataframe[0].value) == 10
+    assert set(app.dataframe[0].value["availability_risk"]) == {"Healthy"}
+    assert app.dataframe[0].value["priority_rank"].tolist() == list(range(51, 61))
+    app.multiselect(key="statuses_overview").set_value([]).run(timeout=30)
+    assert not app.exception
+    assert app.dataframe[0].value.empty
+    assert any("Choose at least one" in message.value for message in app.info)
