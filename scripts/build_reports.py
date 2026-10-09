@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,7 +64,11 @@ This is a released research dataset, not a view of current company operations.
 - **Zero sales often coincide with unavailability.** {data["zero_sales_with_stockout"]:,} of {data["zero_sales_days"]:,} zero-sales days ({zero_share:.2%}) had stockout exposure. Recorded sales therefore cannot be treated as complete demand.
 - **The latest 28-day rules flag {risks["high_priority_series"]:,} series ({risks["high_priority_series_share"]:.2%}) as Critical or High Risk.** They account for {risks["high_priority_recent_sales_share"]:.2%} of recent observed sales. This broad queue needs a capacity limit and local investigation; it does not justify replenishing every flagged item.
 
-## Where to begin
+## Original exposure-order examples
+
+These are the first five original severity-priority examples, not a highest-sales
+or optimal-replenishment list. For the two management investigation purposes,
+see the [editorial management brief](management_brief.md).
 
 | Store:product | Unavailable hours, recent 28 days | Mean daily observed sales | Next 7-day sales estimate | Management action |
 | --- | ---: | ---: | ---: | --- |
@@ -144,7 +149,11 @@ or personal information. Optional weather fields are profiled but not modeled.
 See [machine-readable audit](evidence/data_quality.json), [download hashes](evidence/download_manifest.json),
 [methods](methodology.md), [candidate selection](dataset_selection.md) and [SQL](../sql/).
 """)
-    (ROOT / "README.md").write_text(f"""# Supply Chain Decision Intelligence
+    technical_report = f"""# Generated technical analysis
+
+This report is regenerated from the saved machine-readable evidence. The
+[business overview](../README.md) and [management brief](management_brief.md)
+are maintained separately; rebuilding this report does not overwrite them.
 
 An end-to-end supply-chain analytics project using real public retail data to prioritize availability risk, evaluate sales forecasts and support transparent replenishment planning.
 
@@ -183,7 +192,7 @@ The aligned panels separate **recorded sales** from **availability exposure** ac
 
 All five methods use the same **June 26–July 2 holdout / 350,000 observations**. The selector was chosen using three earlier rolling validation folds. Fixed SES performs **{pp_gap:.2f} percentage points better** on this holdout; the negative result is retained. Forecasts target observed sales, not recovered demand.
 
-[Management brief](docs/executive_summary.md) · [Data quality](docs/data_quality_report.md) · [Methods](docs/methodology.md) · [Dataset comparison](docs/dataset_selection.md)
+[Original exposure-order examples and benchmark](docs/executive_summary.md) · [Data quality](docs/data_quality_report.md) · [Methods](docs/methodology.md) · [Dataset comparison](docs/dataset_selection.md)
 
 ## Visualization Gallery
 
@@ -299,8 +308,18 @@ data/demo/            Small attributed real-data adaptation, committed
 The data covers **{data["date_min"]}–{data["date_max"]}**, not current inventory. It contains no on-hand quantity, unit price/cost, supplier, purchase order, shelf life or spoilage cost. Consequently there are no actual inventory values, turnover, EOQ, supplier rankings, realized service levels or executable replenishment orders. All monetary or physical-unit conclusions would need additional data. The normal-approximation planning formula assumes independent stationary demand and lead time; it is particularly limited for perishable/intermittent and stockout-censored demand. Annual seasonality and lost demand are not estimated.
 
 Code is MIT licensed; source and derived data retain their separate CC BY 4.0 attribution. See [data rights](data/LICENSE.md).
-""")
-    print("Generated README, executive summary and data-quality report from verified evidence")
+"""
+    # This report lives one directory below the editorial README. Adjust only
+    # repository-relative Markdown links; evidence values and prose stay intact.
+    technical_report = re.sub(
+        r"(?<=\]\()(docs|sql|scripts|notebooks|data)/",
+        lambda match: "" if match.group(1) == "docs" else f"../{match.group(1)}/",
+        technical_report,
+    )
+    (ROOT / "docs/generated_analysis.md").write_text(technical_report)
+    print(
+        "Generated technical analysis, executive summary and data-quality report from verified evidence"
+    )
 
 
 if __name__ == "__main__":

@@ -11,7 +11,11 @@ This is a released research dataset, not a view of current company operations.
 - **Zero sales often coincide with unavailability.** 164,587 of 215,323 zero-sales days (76.44%) had stockout exposure. Recorded sales therefore cannot be treated as complete demand.
 - **The latest 28-day rules flag 40,591 series (81.18%) as Critical or High Risk.** They account for 75.79% of recent observed sales. This broad queue needs a capacity limit and local investigation; it does not justify replenishing every flagged item.
 
-## Where to begin
+## Original exposure-order examples
+
+These are the first five original severity-priority examples, not a highest-sales
+or optimal-replenishment list. For the two management investigation purposes,
+see the [editorial management brief](management_brief.md).
 
 | Store:product | Unavailable hours, recent 28 days | Mean daily observed sales | Next 7-day sales estimate | Management action |
 | --- | ---: | ---: | ---: | --- |
