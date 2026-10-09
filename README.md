@@ -1,24 +1,46 @@
 # Supply Chain Decision Intelligence
 
-An end-to-end supply-chain analytics project using real public retail data to prioritize availability risk, evaluate sales forecasts and support transparent replenishment planning.
+[English](README.md) · [中文](README.zh-CN.md)
 
-[![Analytics CI](https://github.com/hql7-luo/supply-chain-decision-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/hql7-luo/supply-chain-decision-intelligence/actions/workflows/ci.yml)
+Retailers can miss sales opportunities when products are unavailable, but recorded sales alone do not show which products need attention. I led an AI-assisted analysis of real retail history to focus stockout investigations and compare sales forecasts.
 
-**Real data:** [FreshRetailNet-50K · Dingdong-Inc](https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K) · CC BY 4.0 · **4.85M observations / 50,000 store-product series / 865 products**.
+**My role:** business requirements and final-output review; AI assisted implementation.
 
-**[Open the real-data interactive Demo](https://hql7-luo.github.io/demos/supply-chain/)** · 200 series / 19,400 real observations · no installation or sign-in. This GitHub Pages explorer shows subset trends, priorities and forecasts; its metrics are separate from the full-data findings below. [Bilingual case study](https://hql7-luo.github.io/projects/supply-chain-decision-intelligence.html)
+**[Try the real-data Demo](https://hql7-luo.github.io/demos/supply-chain/)** · 200 real series / 19,400 observations · no sign-in. [Management brief](docs/management_brief.md) · [Bilingual case study](https://hql7-luo.github.io/projects/supply-chain-decision-intelligence.html)
 
-## The project in 30 seconds
+![From retail data to management action: real observations, saved findings, complementary investigation views and operational checks](docs/assets/management-action-overview.png)
 
-**Question:** which store-product series need availability review, and which observed-sales forecast is a credible planning baseline?
+The overview summarizes **full-data evidence** and suggested investigation steps. The public Demo is a separate 200-series illustration. [Figure sources and scope](docs/evidence/management-action-overview.json)
+
+## What the evidence changes
+
+**Why it is useful:** managers can narrow a broad availability problem into a manageable investigation, see why an item was selected, and keep a simple forecast benchmark visible before changing planning decisions.
 
 | Evidence from the full dataset | Business recommendation |
 | --- | --- |
-| **44.0% of daily records had stockouts**; 19.7% of operating hours were unavailable | Investigate repeated exposure before treating low recorded sales as low demand |
+| **40,591 series (81.2%) are Critical / High Risk** in the latest 28 days | Choose a limited investigation workload; a flag does not authorize an order |
 | **122 / 865 products (14.1%) contribute ≥80% of observed sales** | Focus review capacity on high-contribution products with recurring availability issues |
-| **SES: 36.0% WAPE · per-series selection: 37.4%** | Keep the stronger simple baseline visible; validate prospectively before adopting a model policy |
+| **SES: 36.0% forecast error · per-series selection: 37.4%** | Keep the stronger simple baseline visible; lower WAPE is better, and adoption still needs new-period validation |
 
-Scope: **97 historical days, 2024-03-28–2024-07-02**. Sales use a globally normalized scale, not physical units or revenue. This independent public-data project does not claim realized commercial savings.
+**Data scope:** [Dingdong-Inc / FreshRetailNet-50K](https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K), CC BY 4.0; **4.85M observations / 50,000 store–product series / 865 products / 97 days**, March 28–July 2, 2024. Sales are globally normalized, not physical units or revenue. The availability window is June 5–July 2; all forecast comparisons share the June 26–July 2 holdout.
+
+**My contribution:** I led this personal, AI-assisted project, defined the inventory-risk, forecasting and management-report requirements, and reviewed the final outputs. AI assisted the data processing, forecast analysis, dashboard implementation and engineering tests.
+
+**Skills demonstrated:** business problem framing, analytical evidence review, forecasting and inventory-risk concepts, and management communication. The implementation uses Python, SQL and Streamlit.
+
+## Two management investigation purposes
+
+1. **Availability investigation:** keep Critical / High Risk and use the **original severity priority**. Start with the most severe recorded exposure, then verify active assortment, recording and operating causes. Suggested owner: store operations, with replenishment planning.
+2. **A-tier sales-contribution review:** inspect Critical / High Risk items using the **existing sales sort** and their saved store–product A tier. An A-only worklist filters that saved class and uses the existing 97-day sales order. Suggested owner: replenishment planning, with store operations. Prices, margins, real stock, open orders, lead times and shelf life are needed before turning this investigation into a replenishment decision.
+
+Top 20 / Top 50 expresses review capacity. Both purposes retain the original risk labels and ranks. The A-only filter is a documented worklist definition using existing fields; it is not a new static Demo control, optimization score or automatically improved policy. [Finding → why → owner/action → needed inputs](docs/management_brief.md)
+
+**Try the existing view switch:** in the online Demo, keep **Critical + High Risk**, choose **Top 20 / Top 50**, and compare **Pipeline priority** with **Recent observed sales**. Click Review for the item's evidence and forecast. The Demo sales sort uses 28 days; local Streamlit's **Highest observed sales** uses all 97 days and shows the saved ABC column. Demo metrics and ABC belong to its 200-series cohort. [Exact view definitions and scoped comparison](docs/management_brief.md#two-complementary-investigation-views)
+
+## Detailed analytical evidence
+
+<details>
+<summary>Open the five original analysis charts and the full-data dashboard screenshot</summary>
 
 ### 1. Historical Demand & Stockout Trends
 
@@ -38,7 +60,7 @@ The aligned panels separate **recorded sales** from **availability exposure** ac
 
 All five methods use the same **June 26–July 2 holdout / 350,000 observations**. The selector was chosen using three earlier rolling validation folds. Fixed SES performs **1.42 percentage points better** on this holdout; the negative result is retained. Forecasts target observed sales, not recovered demand.
 
-[Management brief](docs/executive_summary.md) · [Data quality](docs/data_quality_report.md) · [Methods](docs/methodology.md) · [Dataset comparison](docs/dataset_selection.md)
+[Original exposure-order examples and benchmark](docs/executive_summary.md) · [Data quality](docs/data_quality_report.md) · [Methods](docs/methodology.md) · [Dataset comparison](docs/dataset_selection.md)
 
 ## Visualization Gallery
 
@@ -46,7 +68,7 @@ All five methods use the same **June 26–July 2 holdout / 350,000 observations*
 
 ![Recent sales contribution and stockout operating-hour exposure for all 50000 series](docs/assets/stockout-risk-matrix.png)
 
-**40,591 series (81.2%) are Critical or High Risk** under unchanged latest-28-day rules. They represent 75.8% of recent observed sales. Both axes use **June 5–July 2**; the matrix relates contribution to exposure. Dashboard Top 20 / Top 50 views make this broad review queue manageable, with selectable sales/exposure sorting. They do not authorize automatic orders.
+**40,591 series (81.2%) are Critical or High Risk** under unchanged latest-28-day rules. They represent 75.8% of recent observed sales. Both axes use **June 5–July 2**; the matrix relates contribution to exposure. Highlighted original Top 20 items are severity-priority examples, not the highest-sales list. Existing sales/exposure sorting provides complementary investigation views; it does not authorize automatic orders.
 
 ### Availability & Zero-Sales Analysis
 
@@ -60,9 +82,15 @@ All five charts are generated from the full SQLite analysis and reconciled with 
 
 ![Actual full-data Streamlit executive dashboard](docs/assets/dashboard.png)
 
-Six existing tabs retain demand, risk, forecasts, scenario planning and source-quality checks. Review **Top 20 / Top 50**, filter status, sort by business contribution or exposure, inspect a series' action and reason, compare actuals with scored predictions, and download chart HTML / CSV data / PNG. City and category filters retain the original analytical definitions.
+Six existing tabs retain demand, risk, forecasts, scenario planning and source-quality checks. Review **Top 20 / Top 50**, filter status, compare original priority with observed-sales/exposure sorting, inspect a series' action and reason, compare actuals with scored predictions, and download chart HTML / CSV data / PNG. City and category filters retain the original analytical definitions. This saved screenshot shows the full-data overview, not a new operational deployment.
+
+</details>
 
 ## Analytics and dashboard
+
+[![Analytics CI](https://github.com/hql7-luo/supply-chain-decision-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/hql7-luo/supply-chain-decision-intelligence/actions/workflows/ci.yml)
+
+[Generated technical analysis](docs/generated_analysis.md) contains the machine-evidence report and original chart explanations. This business README and the [management brief](docs/management_brief.md) are maintained separately; rebuilding reports preserves them.
 
 | Area | What it demonstrates |
 | --- | --- |
