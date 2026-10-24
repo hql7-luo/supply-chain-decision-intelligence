@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import sqlite3
+from html.parser import HTMLParser
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +14,17 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("web_builder", ROOT / "scripts/build_web_demo.py")
 builder = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(builder)
+
+
+class _ControlStates(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.disabled = set()
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag in {"select", "button"} and "disabled" in attributes:
+            self.disabled.add(attributes.get("id"))
 
 
 def test_web_export_preserves_all_real_observations_and_scoped_metrics(tmp_path):
@@ -45,3 +57,18 @@ def test_web_export_preserves_all_real_observations_and_scoped_metrics(tmp_path)
     full = json.loads((ROOT / "docs/evidence/findings.json").read_text())
     assert exported["kpis"]["wape"] != full["forecast"]["holdout_metrics"]["all_days"]["wape"]
     assert "plotly.js" in (tmp_path / "plotly.min.js").read_text()[:300]
+    # Regeneration must preserve reviewed metadata and the complete interaction assets.
+    for filename in ["index.html", "demo.js", "demo.css"]:
+        assert (tmp_path / filename).read_bytes() == (ROOT / "app/web" / filename).read_bytes()
+    controls = _ControlStates()
+    controls.feed((tmp_path / "index.html").read_text())
+    # Data-dependent controls must stay inert before the deferred script/data load.
+    assert controls.disabled == {
+        "status",
+        "capacity",
+        "sort",
+        "series-choice",
+        "trend-download",
+        "queue-download",
+        "forecast-download",
+    }
